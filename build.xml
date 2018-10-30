@@ -1,11 +1,25 @@
-<project name="HelloWorld" basedir="." default="main">
+<project name="HelloWorld" basedir="." default="main" >
 
-    <property name="src.dir"     value="src"/>
-    <property name="build.dir"   value="build"/>
+    <property name="src.dir"     value="src/main/java"/>
+    <property name="build.dir"   value="build/main"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir"     value="${build.dir}/jar"/>
     <property name="main-class"  value="olleh.HelloWorld"/>
+    <property name="test.build.dir" value="build/test" />
+    <property name="test.src.dir" value="src/test/java"/>
+    <property name="thirdparty_lib_test" value="thirdparty_lib" />
     <property environment="env"/>
+
+    <path id="classpath.test">
+        <fileset dir="${thirdparty_lib_test}">
+            <include name = "**/*.jar" />
+        </fileset>
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath path="${thirdparty_lib_test}/jacoco-0.8.2/lib/jacocoant.jar"/>
+    </taskdef>
 
     <target name="clean">
         <delete dir="${build.dir}"/>
@@ -13,7 +27,7 @@
 
     <target name="compile">
         <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false"/>
     </target>
 
     <target name="jar" depends="compile">
@@ -25,7 +39,44 @@
         </jar>
     </target>
 
-    <target name="run" depends="jar">
+    <target name="test_compile" depends="compile">
+        <mkdir dir="${test.build.dir}"/>
+        <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" includeantruntime="false" >
+            <classpath refid="classpath.test"/>
+        </javac>
+    </target>
+
+    <target name="test_run" depends="test_compile">
+        <jacoco:coverage destfile="${test.build.dir}/jacoco.exec" xmlns:jacoco="antlib:org.jacoco.ant">
+            <junit printsummary="on" haltonfailure="yes" fork="true">
+                <classpath>
+                    <path refid="classpath.test"/>
+                    <pathelement location="${test.build.dir}"/>
+                </classpath>
+                <formatter type="brief" usefile="false" />
+                <batchtest>
+                    <fileset dir="${test.src.dir}" includes="**/*UT.java" />
+                </batchtest>
+            </junit>
+        </jacoco:coverage>
+
+        <jacoco:report xmlns:jacoco="antlib:org.jacoco.ant">
+            <executiondata>
+                <file file="${test.build.dir}/jacoco.exec"/>
+            </executiondata>
+           <structure name="MYStack">
+                <classfiles>
+                    <fileset dir="${build.dir}"/>
+                </classfiles>
+                <sourcefiles encoding="UTF-8">
+                    <fileset dir="${src.dir}"/>
+                </sourcefiles>
+            </structure>
+            <html destdir="${test.build.dir}/report"/>
+        </jacoco:report>
+    </target>
+
+    <target name="run" depends="jar,test_run">
         <echo message = "${env.isCI}"/>
         <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
     </target>
