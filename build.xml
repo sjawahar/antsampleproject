@@ -1,9 +1,10 @@
 <project name="HelloWorld" basedir="." default="main" >
 
     <property name="src.dir"     value="src/main/java"/>
-    <property name="build.dir"   value="build/main"/>
-    <property name="classes.dir" value="${build.dir}/classes"/>
-    <property name="jar.dir"     value="${build.dir}/jar"/>
+    <property name="build.dir" value="build" />
+    <property name="src.build.dir"   value="build/main"/>
+    <property name="classes.dir" value="${src.build.dir}/classes"/>
+    <property name="jar.dir"     value="${src.build.dir}/jar"/>
     <property name="main-class"  value="olleh.HelloWorld"/>
     <property name="test.build.dir" value="build/test" />
     <property name="test.src.dir" value="src/test/java"/>
@@ -66,7 +67,7 @@
             </executiondata>
            <structure name="MYStack">
                 <classfiles>
-                    <fileset dir="${build.dir}"/>
+                    <fileset dir="${src.build.dir}"/>
                 </classfiles>
                 <sourcefiles encoding="UTF-8">
                     <fileset dir="${src.dir}"/>
