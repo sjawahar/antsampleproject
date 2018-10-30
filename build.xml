@@ -70,7 +70,7 @@
                     <fileset dir="${src.build.dir}"/>
                 </classfiles>
                 <sourcefiles encoding="UTF-8">
-                    <fileset dir="${src.dir}"/>
+                    <fileset dir="src/main/java/olleh"/>
                 </sourcefiles>
             </structure>
             <html destdir="${test.build.dir}/report"/>
